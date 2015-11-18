@@ -23,7 +23,7 @@ public class DigitsClassification {
 		System.out.println("Done");
 		
 		Perceptron perceptron = new Perceptron(10, 28);
-		perceptron.train(trainObsList,1);
+		perceptron.train(trainObsList,1,1);
 		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList);
 		
 		/*
