@@ -4,13 +4,22 @@ package digits.entities;
 /* Abstract class Observation */
 abstract public class Observation {
 	
-	private int[][] features;
+	private int[][] features;	
+	private int[] featuresVector;
 	private int realLabel;
 	
 	/* Constructor 1 */
 	public Observation(int[][] features, int realLabel){
 		this.features = features;
 		this.realLabel = realLabel;
+		this.featuresVector = new int[features.length*features[0].length];
+		
+		
+		for(int i=0;i<features.length;i++){
+			for(int j=0;j<features[i].length;j++){
+				this.featuresVector[i+j*features.length]=features[i][j];
+			}
+		}
 	}	
 	
 	/* Constructor 2 */
@@ -28,6 +37,10 @@ abstract public class Observation {
 	
 	public void setRealLabel(int realLabel){
 		this.realLabel = realLabel;
+	}
+	
+	public int[] getFeaturesVector(){
+		return featuresVector;
 	}
 	
 	// Browse the features and display values
