@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 public class Perceptron {
 	
-	ArrayList<int[]> weightVectorClass; // Array containing the weight vector for each class
+	private ArrayList<int[]> weightVectorClass; // Array containing the weight vector for each class
 	private int nbOfClass; // total number of class in the problem
 	private int imageSize; // size of the image, in our example : 28
+	private int bias;
 	
 	public Perceptron(int nbOfClass, int imageSize){
 		this.nbOfClass = nbOfClass;
@@ -15,7 +16,7 @@ public class Perceptron {
 		
 	}
 	
-	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch){
+	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias){
 		
 		int maxValue;
 		int sum;
@@ -24,7 +25,13 @@ public class Perceptron {
 		int[] classVector;
 		int[] observationFeaturesVector;
 		
-		initializeWeightVectors();
+		if(bias==0){
+			initializeWeightVectorsNoBias();
+		}
+		else{
+			initializeWeightVectorsBias();
+		}
+		
 		
 		for(int k=0; k<numberOfEpoch;k++){
 			for(TrainObservation trainObs : trainList){
@@ -32,11 +39,21 @@ public class Perceptron {
 				sum = 0;
 				predictedClass = -1;
 				realClass = trainObs.getRealLabel();
-				observationFeaturesVector = trainObs.getFeaturesVector();
+				int limit;
+				if(bias==0){
+					observationFeaturesVector = trainObs.getFeaturesVectorNoBias();
+					limit = imageSize*imageSize;
+				}
+				else {
+					observationFeaturesVector = trainObs.getFeaturesVectorBias();
+					limit = imageSize*imageSize+1;
+				}
+					
 				for(int i = 0 ; i < this.nbOfClass ; i++){
 					classVector = this.weightVectorClass.get(i);
 					sum=0;
-					for(int j = 0 ; j < imageSize*imageSize ; j++){
+					
+					for(int j = 0 ; j < limit ; j++){
 						sum += classVector[j]*observationFeaturesVector[j];
 					}
 					if (sum > maxValue){
@@ -60,7 +77,7 @@ public class Perceptron {
 		int sum = 0;
 		int predictedClass = -1;
 		int[] classVector;
-		int[] observationFeaturesVector = testObs.getFeaturesVector();
+		int[] observationFeaturesVector = testObs.getFeaturesVectorNoBias();
 		
 		for(int i = 0 ; i < this.nbOfClass ; i++){
 			classVector = this.weightVectorClass.get(i);
@@ -86,14 +103,20 @@ public class Perceptron {
 	}
 	
 
-	private void initializeWeightVectors() {
+	private void initializeWeightVectorsNoBias() {
 		for(int i=0;i<nbOfClass;i++){
 			weightVectorClass.add(new int[imageSize*imageSize]);
 		}
 	}
 	
+	private void initializeWeightVectorsBias() {
+		for(int i=0;i<nbOfClass;i++){
+			weightVectorClass.add(new int[imageSize*imageSize+1]);
+		}
+	}
+	
 	private int[] sumVectors(int[] v1, int[] v2){
-		int[] res = new int[imageSize*imageSize];
+		int[] res = new int[v1.length];
 		if(v1.length!=v2.length){
 			return res;
 		}
@@ -106,7 +129,7 @@ public class Perceptron {
 	}	
 	
 	private int[] substractVectors(int[] v1, int[] v2){
-		int[] res = new int[imageSize*imageSize];
+		int[] res = new int[v1.length];
 		if(v1.length!=v2.length){
 			return res;
 		}
