@@ -5,21 +5,25 @@ package digits.entities;
 abstract public class Observation {
 	
 	private int[][] features;	
-	private int[] featuresVector;
+	private int[] featuresVectorNoBias;	
+	private int[] featuresVectorBias;
 	private int realLabel;
 	
 	/* Constructor 1 */
 	public Observation(int[][] features, int realLabel){
 		this.features = features;
 		this.realLabel = realLabel;
-		this.featuresVector = new int[features.length*features[0].length];
+		this.featuresVectorNoBias = new int[features.length*features[0].length];
+		this.featuresVectorBias = new int[features.length*features[0].length+1];
 		
 		
 		for(int i=0;i<features.length;i++){
 			for(int j=0;j<features[i].length;j++){
-				this.featuresVector[i+j*features.length]=features[i][j];
+				this.featuresVectorNoBias[i+j*features.length]=features[i][j];
+				this.featuresVectorBias[i+j*features.length]=features[i][j];
 			}
 		}
+		this.featuresVectorBias[features.length*features.length]=1;
 	}	
 	
 	/* Constructor 2 */
@@ -39,8 +43,13 @@ abstract public class Observation {
 		this.realLabel = realLabel;
 	}
 	
-	public int[] getFeaturesVector(){
-		return featuresVector;
+	public int[] getFeaturesVectorNoBias(){
+		return featuresVectorNoBias;
+	}
+	
+	
+	public int[] getFeaturesVectorBias(){
+		return featuresVectorBias;
 	}
 	
 	// Browse the features and display values
