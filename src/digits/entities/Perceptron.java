@@ -1,6 +1,7 @@
 package digits.entities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Perceptron {
 	
@@ -16,7 +17,7 @@ public class Perceptron {
 		
 	}
 	
-	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias){
+	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder){
 		
 		int maxValue;
 		int sum;
@@ -24,6 +25,9 @@ public class Perceptron {
 		int realClass;
 		int[] classVector;
 		int[] observationFeaturesVector;
+		
+		if(randomOrder==1)
+			Collections.shuffle(trainList);
 		
 		if(bias==0){
 			initializeWeightVectorsNoBias();
