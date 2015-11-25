@@ -26,7 +26,11 @@ public class DigitsClassification {
 		int numberOfEpoch = 1;
 		int bias = 1;
 		int randomOrder = 0;
-		perceptron.train(trainObsList,numberOfEpoch,bias,randomOrder);
+		// if random = 0, we initialize every value to zero.
+		// if random > 0, we initialize every value with a number between 0 and the value of the variable random
+		int randomValue =  0;
+		//int learningRateValue = 0;
+		perceptron.train(trainObsList,numberOfEpoch,bias,randomOrder, randomValue, learningRateValue);
 		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList);
 		
 		/*

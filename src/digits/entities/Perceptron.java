@@ -2,6 +2,7 @@ package digits.entities;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class Perceptron {
 	
@@ -17,25 +18,25 @@ public class Perceptron {
 		
 	}
 	
-	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder){
+	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue){
 		
 		int maxValue;
 		int sum;
+		float alpha; // Learning Rate
 		int predictedClass;
 		int realClass;
+		int exNumber = 1;
 		int[] classVector;
 		int[] observationFeaturesVector;
 		
 		if(randomOrder==1)
 			Collections.shuffle(trainList);
 		
-		if(bias==0){
-			initializeWeightVectorsNoBias();
-		}
-		else{
-			initializeWeightVectorsBias();
-		}
+		initializeWeightVectors(bias,randomValue);
 		
+		if(learningRateValue==0){
+			alpha = 1;
+		}
 		
 		for(int k=0; k<numberOfEpoch;k++){
 			for(TrainObservation trainObs : trainList){
@@ -66,9 +67,14 @@ public class Perceptron {
 					}
 				}
 				if (predictedClass!=realClass){
+					/*
+					alpha = (learningRateValue)
+					int[] alphaVector = multiplyConstantVectors(observationFeaturesVector, alpha);
+					*/
 					copyVectors(weightVectorClass.get(realClass), sumVectors(this.weightVectorClass.get(realClass), observationFeaturesVector));
 					copyVectors(weightVectorClass.get(predictedClass), substractVectors(this.weightVectorClass.get(predictedClass), observationFeaturesVector));
 				}
+				exNumber++;
 			}
 		}
 
@@ -106,16 +112,26 @@ public class Perceptron {
 		return testList;
 	}
 	
-
-	private void initializeWeightVectorsNoBias() {
-		for(int i=0;i<nbOfClass;i++){
-			weightVectorClass.add(new int[imageSize*imageSize]);
-		}
-	}
-	
-	private void initializeWeightVectorsBias() {
-		for(int i=0;i<nbOfClass;i++){
-			weightVectorClass.add(new int[imageSize*imageSize+1]);
+	// if random = 0, we initialize every value to zero.
+	// if random > 0, we initialize every value with a number between 0 and the value of the variable random
+	private void initializeWeightVectors(int bias, int randomValue) {
+		if(bias==0)
+			for(int i=0;i<nbOfClass;i++){
+				weightVectorClass.add(new int[imageSize*imageSize]);
+			}
+		else
+			for(int i=0;i<nbOfClass;i++){
+				weightVectorClass.add(new int[imageSize*imageSize+1]);
+			}
+		
+		if(randomValue > 0){
+			Random random=new Random();
+			int size = weightVectorClass.get(0).length;
+			for(int i=0;i<nbOfClass;i++){
+				int[] vector = weightVectorClass.get(i);
+				for(int j=0;j<size;j++)
+					vector[j] = (random.nextInt(randomValue*2)-randomValue);
+			}
 		}
 	}
 	
@@ -143,6 +159,14 @@ public class Perceptron {
 			}
 			return res;
 		}
+	}	
+	
+	private int[] multiplyConstantVectors(int[] v, int alpha){
+		int[] res = new int[v.length];
+		for(int i=0;i<v.length;i++)
+			res[i]=v[i]*alpha;
+		return res;
+		
 	}	
 	
 	private void copyVectors(int[] v1, int[] v2){
