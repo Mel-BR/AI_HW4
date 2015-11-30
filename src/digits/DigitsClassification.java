@@ -23,22 +23,16 @@ public class DigitsClassification {
 		System.out.println("Done");
 		
 		Perceptron perceptron = new Perceptron(10, 28);
-		int numberOfEpoch = 1;
+		int numberOfEpoch = 50;
 		int bias = 1;
 		int randomOrder = 0;
 		// if random = 0, we initialize every value to zero.
 		// if random > 0, we initialize every value with a number between 0 and the value of the variable random
 		int randomValue =  0;
-		int learningRateValue = 0;
-		perceptron.train(trainObsList,numberOfEpoch,bias,randomOrder, randomValue, learningRateValue);
+		int learningRateValue = 1000;
+		perceptron.train(trainObsList,numberOfEpoch,bias,randomOrder, randomValue, learningRateValue,testObsList);
 		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList);
 		
-		/*
-		for (int i = 0; i < 8; i++) {
-			testObsListLabeled.get(i).displayFeatures();
-			System.out.println(testObsListLabeled.get(i).getPredictedLabel()+" "+testObsListLabeled.get(i).getRealLabel());
-		}
-		*/
 		
 		Evaluator eval = new Evaluator(testObsListLabeled);
 		DecimalFormat percentFormatter = new DecimalFormat("00.00%");
@@ -51,9 +45,9 @@ public class DigitsClassification {
 		System.out.println();
 		
 		// Displaying accuracy for every number
-		for(int i=0;i<10;i++){
+		/*		for(int i=0;i<10;i++){
 			System.out.println("Accuracy for label "+i+" : "+percentFormatter.format(eval.getAccuracy(i)));
-		}
+		}*/
 		
 		System.out.println();
 		

@@ -1,12 +1,13 @@
 package digits.entities;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
 public class Perceptron {
 	
-	private ArrayList<int[]> weightVectorClass; // Array containing the weight vector for each class
+	private ArrayList<float[]> weightVectorClass; // Array containing the weight vector for each class
 	private int nbOfClass; // total number of class in the problem
 	private int imageSize; // size of the image, in our example : 28
 	private int bias;
@@ -14,11 +15,11 @@ public class Perceptron {
 	public Perceptron(int nbOfClass, int imageSize){
 		this.nbOfClass = nbOfClass;
 		this.imageSize = imageSize;
-		this.weightVectorClass = new ArrayList<int[]>();
+		this.weightVectorClass = new ArrayList<float[]>();
 		
 	}
 	
-	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue){
+	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue,ArrayList<TestObservation> testList){
 		
 		int maxValue;
 		int sum;
@@ -26,8 +27,9 @@ public class Perceptron {
 		int predictedClass;
 		int realClass;
 		int exNumber = 1;
-		int[] classVector;
+		float[] classVector;
 		int[] observationFeaturesVector;
+		float[] alphaVector;
 		
 		if(randomOrder==1)
 			Collections.shuffle(trainList);
@@ -38,6 +40,7 @@ public class Perceptron {
 			alpha = 1;
 		}
 		
+		System.out.println("EpochNumber,GeneralAccuracy");
 		for(int k=0; k<numberOfEpoch;k++){
 			for(TrainObservation trainObs : trainList){
 				maxValue = Integer.MIN_VALUE;
@@ -67,15 +70,21 @@ public class Perceptron {
 					}
 				}
 				if (predictedClass!=realClass){
-					/*
-					alpha = (learningRateValue)
-					int[] alphaVector = multiplyConstantVectors(observationFeaturesVector, alpha);
-					*/
-					copyVectors(weightVectorClass.get(realClass), sumVectors(this.weightVectorClass.get(realClass), observationFeaturesVector));
-					copyVectors(weightVectorClass.get(predictedClass), substractVectors(this.weightVectorClass.get(predictedClass), observationFeaturesVector));
+					if (learningRateValue > 0) {
+						alpha = ((float)learningRateValue/(learningRateValue+exNumber));
+						alphaVector = multiplyConstantVectors(observationFeaturesVector, alpha);
+					}
+					else{
+						alpha = 1;
+						alphaVector = multiplyConstantVectors(observationFeaturesVector, alpha);
+					}
+						
+					copyVectors(weightVectorClass.get(realClass), sumVectors(this.weightVectorClass.get(realClass), alphaVector));
+					copyVectors(weightVectorClass.get(predictedClass), substractVectors(this.weightVectorClass.get(predictedClass), alphaVector));
 				}
 				exNumber++;
 			}
+			System.out.println(k+","+getGeneralAccuracy(test(testList))*100);
 		}
 
 	}
@@ -86,7 +95,7 @@ public class Perceptron {
 		int maxValue = Integer.MIN_VALUE;
 		int sum = 0;
 		int predictedClass = -1;
-		int[] classVector;
+		float[] classVector;
 		int[] observationFeaturesVector = testObs.getFeaturesVectorNoBias();
 		
 		for(int i = 0 ; i < this.nbOfClass ; i++){
@@ -117,26 +126,26 @@ public class Perceptron {
 	private void initializeWeightVectors(int bias, int randomValue) {
 		if(bias==0)
 			for(int i=0;i<nbOfClass;i++){
-				weightVectorClass.add(new int[imageSize*imageSize]);
+				weightVectorClass.add(new float[imageSize*imageSize]);
 			}
 		else
 			for(int i=0;i<nbOfClass;i++){
-				weightVectorClass.add(new int[imageSize*imageSize+1]);
+				weightVectorClass.add(new float[imageSize*imageSize+1]);
 			}
 		
 		if(randomValue > 0){
 			Random random=new Random();
 			int size = weightVectorClass.get(0).length;
 			for(int i=0;i<nbOfClass;i++){
-				int[] vector = weightVectorClass.get(i);
+				float[] vector = weightVectorClass.get(i);
 				for(int j=0;j<size;j++)
 					vector[j] = (random.nextInt(randomValue*2)-randomValue);
 			}
 		}
 	}
 	
-	private int[] sumVectors(int[] v1, int[] v2){
-		int[] res = new int[v1.length];
+	private float[] sumVectors(float[] v1, float[] v2){
+		float[] res = new float[v1.length];
 		if(v1.length!=v2.length){
 			return res;
 		}
@@ -148,8 +157,8 @@ public class Perceptron {
 		}
 	}	
 	
-	private int[] substractVectors(int[] v1, int[] v2){
-		int[] res = new int[v1.length];
+	private float[] substractVectors(float[] v1, float[] v2){
+		float[] res = new float[v1.length];
 		if(v1.length!=v2.length){
 			return res;
 		}
@@ -161,19 +170,35 @@ public class Perceptron {
 		}
 	}	
 	
-	private int[] multiplyConstantVectors(int[] v, int alpha){
-		int[] res = new int[v.length];
+	private float[] multiplyConstantVectors(int[] v, float alpha){
+		float[] res = new float[v.length];
 		for(int i=0;i<v.length;i++)
-			res[i]=v[i]*alpha;
+			res[i]=alpha*v[i];
 		return res;
 		
 	}	
 	
-	private void copyVectors(int[] v1, int[] v2){
+	private void copyVectors(float[] v1, float[] v2){
 		if(v1.length==v2.length){
 			for(int i=0;i<v1.length;i++){
 				v1[i]=v2[i];
 			}
 		}
+	}
+	
+	
+	
+	public float getGeneralAccuracy(ArrayList<TestObservation> testList){
+		int countAll= 0; // The number of test observations
+		int countCorrectedPredictedLabel = 0; // The number of test observations that have the same RealLabel and PredictedLabel
+
+		// We browse the list of test observation */
+		for(TestObservation testObs : testList){
+			countAll++;
+			if(testObs.getRealLabel() == testObs.getPredictedLabel() ){
+				countCorrectedPredictedLabel++;
+			}
+		}
+		return (float)countCorrectedPredictedLabel/countAll;
 	}
 }
