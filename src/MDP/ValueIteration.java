@@ -68,7 +68,7 @@ public class ValueIteration {
 					
 					
 					Collections.sort(calculatedUtilites, new Comparator<Node>() {
-				        @Override public int compare(Node p1, Node p2) {
+				        public int compare(Node p1, Node p2) {
 				        	if (0>(p1.utility - p2.utility)){
 				        		return 1;
 				        	}else if (0<(p1.utility - p2.utility)){
@@ -78,6 +78,9 @@ public class ValueIteration {
 				            }
 				        }
 					});
+					
+					
+					//These three must be edited
 					
 					currTile.utility = calculatedUtilites.get(0).utility;
 					currTile.arrowDir = calculatedUtilites.get(0).dir;

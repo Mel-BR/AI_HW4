@@ -60,6 +60,9 @@ public class GUI implements Runnable {
 
 		init = new Initilization(boxSize);
 		this.boardMatrix = init.boardMatrix;
+		
+		
+		//Change this line
 		valueIter = new ValueIteration(boardMatrix,init.tileListToUpdate);
 		
 		

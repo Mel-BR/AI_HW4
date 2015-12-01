@@ -52,7 +52,12 @@ public class InterfacePanel extends JPanel implements ActionListener{
 
 		}else if( e.getSource() == buttons[1]){
 			gui.steps++;
+			
+			
+			//Change this line
 			gui.valueIter.iterateValues(gui.steps);
+			
+			
 			gui.updateGraph();
 	
 		}else if( e.getSource() == buttons[2]){
