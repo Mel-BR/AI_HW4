@@ -7,7 +7,6 @@ import digits.entities.Evaluator;
 import digits.entities.Parser;
 import digits.entities.Perceptron;
 import digits.entities.TestObservation;
-import digits.entities.TrainObservation;
 
 
 public class DigitsClassification {
@@ -15,7 +14,7 @@ public class DigitsClassification {
 	public static void main(String arg[]){
 	
 		System.out.println("Reading training observations...");
-		ArrayList<TrainObservation> trainObsList = Parser.buildTrainObs("trainingimages","traininglabels");		
+		ArrayList<TestObservation> trainObsList = Parser.buildTestObs("trainingimages","traininglabels");		
 		
 		System.out.println("Reading test observations...");
 		ArrayList<TestObservation> testObsList = Parser.buildTestObs("testimages","testlabels");
@@ -23,15 +22,18 @@ public class DigitsClassification {
 		System.out.println("Done");
 		
 		Perceptron perceptron = new Perceptron(10, 28);
-		int numberOfEpoch = 50;
+		int numberOfEpoch = 100;
 		int bias = 1;
 		int randomOrder = 0;
 		// if random = 0, we initialize every value to zero.
 		// if random > 0, we initialize every value with a number between 0 and the value of the variable random
 		int randomValue =  0;
-		int learningRateValue = 1000;
-		perceptron.train(trainObsList,numberOfEpoch,bias,randomOrder, randomValue, learningRateValue,testObsList);
-		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList);
+		int learningRateValue = 100;
+		int displayAccuracy = 1;
+		perceptron.train(trainObsList, testObsList, numberOfEpoch,bias,randomOrder, randomValue, learningRateValue, displayAccuracy);
+		
+		
+		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList,bias);
 		
 		
 		Evaluator eval = new Evaluator(testObsListLabeled);
@@ -40,7 +42,7 @@ public class DigitsClassification {
 		System.out.println();
 		
 		// Displaying overall accuracy
-		System.out.println("General accuracy : "+percentFormatter.format(eval.getGeneralAccuracy()));
+		System.out.println("General accuracy on test set : "+percentFormatter.format(eval.getGeneralAccuracy()));
 		
 		System.out.println();
 		

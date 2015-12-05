@@ -1,6 +1,5 @@
 package digits.entities;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -10,7 +9,6 @@ public class Perceptron {
 	private ArrayList<float[]> weightVectorClass; // Array containing the weight vector for each class
 	private int nbOfClass; // total number of class in the problem
 	private int imageSize; // size of the image, in our example : 28
-	private int bias;
 	
 	public Perceptron(int nbOfClass, int imageSize){
 		this.nbOfClass = nbOfClass;
@@ -19,31 +17,28 @@ public class Perceptron {
 		
 	}
 	
-	public void train(ArrayList<TrainObservation> trainList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue,ArrayList<TestObservation> testList){
+	public void train(ArrayList<TestObservation> trainList, ArrayList<TestObservation> testList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue, int displayAccuracy){
 		
 		int maxValue;
 		int sum;
 		float alpha; // Learning Rate
 		int predictedClass;
 		int realClass;
-		int exNumber = 1;
 		float[] classVector;
 		int[] observationFeaturesVector;
 		float[] alphaVector;
 		
-		if(randomOrder==1)
+		if(randomOrder==1){
 			Collections.shuffle(trainList);
+		}
 		
 		initializeWeightVectors(bias,randomValue);
 		
-		if(learningRateValue==0){
-			alpha = 1;
-		}
-		
 		System.out.println("EpochNumber,GeneralAccuracy");
-		for(int k=0; k<numberOfEpoch;k++){
-			for(TrainObservation trainObs : trainList){
-				maxValue = Integer.MIN_VALUE;
+		for(int k=1; k<=numberOfEpoch;k++){
+			alpha = ((float)learningRateValue/(learningRateValue+k));
+			for(TestObservation trainObs : trainList){
+				
 				sum = 0;
 				predictedClass = -1;
 				realClass = trainObs.getRealLabel();
@@ -56,7 +51,8 @@ public class Perceptron {
 					observationFeaturesVector = trainObs.getFeaturesVectorBias();
 					limit = imageSize*imageSize+1;
 				}
-					
+				
+				maxValue = Integer.MIN_VALUE;
 				for(int i = 0 ; i < this.nbOfClass ; i++){
 					classVector = this.weightVectorClass.get(i);
 					sum=0;
@@ -69,9 +65,9 @@ public class Perceptron {
 						maxValue = sum;
 					}
 				}
+				
 				if (predictedClass!=realClass){
 					if (learningRateValue > 0) {
-						alpha = ((float)learningRateValue/(learningRateValue+exNumber));
 						alphaVector = multiplyConstantVectors(observationFeaturesVector, alpha);
 					}
 					else{
@@ -81,27 +77,40 @@ public class Perceptron {
 						
 					copyVectors(weightVectorClass.get(realClass), sumVectors(this.weightVectorClass.get(realClass), alphaVector));
 					copyVectors(weightVectorClass.get(predictedClass), substractVectors(this.weightVectorClass.get(predictedClass), alphaVector));
+					
+					/*if(predictedClass==0){
+						for(int i=0;i<10;i++){
+							System.out.println(this.weightVectorClass.get(i)[302]);
+						}
+					}*/
+
 				}
-				exNumber++;
 			}
-			System.out.println(k+","+getGeneralAccuracy(test(testList))*100);
+			if (displayAccuracy==1)
+				System.out.println(k+","+getGeneralAccuracy(test(trainList, bias))*100+","+getGeneralAccuracy(test(testList, bias))*100);
 		}
 
 	}
 	
 	
 	/* Gives the best class given an observation */
-	public int getBestClass(TestObservation testObs){
+	public int getBestClass(TestObservation testObs,int bias){
 		int maxValue = Integer.MIN_VALUE;
 		int sum = 0;
 		int predictedClass = -1;
 		float[] classVector;
-		int[] observationFeaturesVector = testObs.getFeaturesVectorNoBias();
-		
+		int[] observationFeaturesVector;
+		if(bias==1){
+			observationFeaturesVector = testObs.getFeaturesVectorBias();
+		}
+		else
+		{
+			observationFeaturesVector = testObs.getFeaturesVectorNoBias();
+		}
 		for(int i = 0 ; i < this.nbOfClass ; i++){
 			classVector = this.weightVectorClass.get(i);
 			sum=0;
-			for(int j = 0 ; j < imageSize*imageSize ; j++){
+			for(int j = 0 ; j < observationFeaturesVector.length ; j++){
 				sum += classVector[j]*observationFeaturesVector[j];
 			}
 			if (sum > maxValue){
@@ -114,9 +123,9 @@ public class Perceptron {
 	
 	/* Run the tests on a given list of test observations and assign them
 	 *  the best predicted class accord to the model */
-	public ArrayList<TestObservation> test(ArrayList<TestObservation> testList){
+	public ArrayList<TestObservation> test(ArrayList<TestObservation> testList, int bias){
 		for (TestObservation testObs : testList){
-			testObs.setPredictedLabel(getBestClass(testObs));
+			testObs.setPredictedLabel(getBestClass(testObs,bias));
 		}
 		return testList;
 	}
