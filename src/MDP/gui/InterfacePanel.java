@@ -55,7 +55,9 @@ public class InterfacePanel extends JPanel implements ActionListener{
 			
 			
 			//Change this line
-			gui.valueIter.iterateValues(gui.steps);
+			//gui.valueIter.iterateValues(gui.steps);
+			
+			gui.qtLearn.iterateValues(gui.steps);
 			
 			
 			gui.updateGraph();

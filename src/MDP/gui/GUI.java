@@ -12,6 +12,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 
+import MDP.QTLearning;
 import MDP.ValueIteration;
 import MDP.entities.Initilization;
 import MDP.entities.Tile;
@@ -22,7 +23,7 @@ public class GUI implements Runnable {
 	public static final int WIDTH = 160;
 	public static final int HEIGHT = WIDTH/12*9;
 	public static final int SCALE = 3;
-	public static final String NAME = "Wargame";
+	public static final String NAME = "GridWorld";
 
 	public static final int SIZE =1680;
  
@@ -55,6 +56,7 @@ public class GUI implements Runnable {
 	private int size = 8;
 	
 	public ValueIteration valueIter;
+	public QTLearning qtLearn;
 	
 	public GUI(){
 
@@ -62,8 +64,9 @@ public class GUI implements Runnable {
 		this.boardMatrix = init.boardMatrix;
 		
 		
-		//Change this line
-		valueIter = new ValueIteration(boardMatrix,init.tileListToUpdate);
+		//valueIter = new ValueIteration(boardMatrix,init.tileListToUpdate);
+		
+		qtLearn = new QTLearning(boardMatrix);
 		
 		
 		
