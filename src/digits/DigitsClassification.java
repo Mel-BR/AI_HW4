@@ -22,20 +22,40 @@ public class DigitsClassification {
 		System.out.println("Done");
 		
 		Perceptron perceptron = new Perceptron(10, 28);
-		int numberOfEpoch = 100;
+		float[] res ;
+		
+		
+		//Tuning program, UNCOMMENT IF YOU WANT TO SEE THE VALUE FOR EACH COMBINATION OF PARAMETERS
+		/*int[] learningRatePossibleValues = {0,1,10,50,100,500,1000,5000,10000};
+		
+		System.out.println("Bias randomOrder randomValue learningRate numberOfEpochMax MaxAccuracyOnTestSet");
+		
+		for(int i=0 ; i<=1;i++){ //Bias
+			for(int j=0 ; j<=1;j++){ //Random Order
+				for(int k=0; k<=100;k+=50){ //RandomValue
+					for(int l=0; l<learningRatePossibleValues.length; l++){ // Learning rate
+						res = perceptron.train(trainObsList, testObsList, 100,i,j, k, learningRatePossibleValues[l], 0);
+						System.out.println(i+" "+j+" "+k+" "+learningRatePossibleValues[l]+" "+res[1]+" "+res[0]);
+					}
+				}
+			}
+		}*/
+		
+		// Train the perceptron with the best parameters found with the tuning programm
+		int numberOfEpoch = 69;
 		int bias = 1;
 		int randomOrder = 0;
 		// if random = 0, we initialize every value to zero.
 		// if random > 0, we initialize every value with a number between 0 and the value of the variable random
 		int randomValue =  0;
-		int learningRateValue = 100;
+		int learningRateValue = 50;
 		int displayAccuracy = 1;
-		perceptron.train(trainObsList, testObsList, numberOfEpoch,bias,randomOrder, randomValue, learningRateValue, displayAccuracy);
+		res = perceptron.train(trainObsList, testObsList, numberOfEpoch,bias,randomOrder, randomValue, learningRateValue, displayAccuracy);
 		
-		
+		// Testing the perceptron on the test train to obtain the predicted labels
 		ArrayList<TestObservation> testObsListLabeled = perceptron.test(testObsList,bias);
 		
-		
+		// Instantiating the Evaluator
 		Evaluator eval = new Evaluator(testObsListLabeled);
 		DecimalFormat percentFormatter = new DecimalFormat("00.00%");
 		

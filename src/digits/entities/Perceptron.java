@@ -17,7 +17,7 @@ public class Perceptron {
 		
 	}
 	
-	public void train(ArrayList<TestObservation> trainList, ArrayList<TestObservation> testList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue, int displayAccuracy){
+	public float[] train(ArrayList<TestObservation> trainList, ArrayList<TestObservation> testList, int numberOfEpoch, int bias, int randomOrder, int randomValue, int learningRateValue, int displayAccuracy){
 		
 		int maxValue;
 		int sum;
@@ -27,6 +27,9 @@ public class Perceptron {
 		float[] classVector;
 		int[] observationFeaturesVector;
 		float[] alphaVector;
+		float maxTestAccuracy = 0;
+		float maxK = 0;
+		float testAccuracy;
 		
 		if(randomOrder==1){
 			Collections.shuffle(trainList);
@@ -34,7 +37,6 @@ public class Perceptron {
 		
 		initializeWeightVectors(bias,randomValue);
 		
-		System.out.println("EpochNumber,GeneralAccuracy");
 		for(int k=1; k<=numberOfEpoch;k++){
 			alpha = ((float)learningRateValue/(learningRateValue+k));
 			for(TestObservation trainObs : trainList){
@@ -77,18 +79,28 @@ public class Perceptron {
 						
 					copyVectors(weightVectorClass.get(realClass), sumVectors(this.weightVectorClass.get(realClass), alphaVector));
 					copyVectors(weightVectorClass.get(predictedClass), substractVectors(this.weightVectorClass.get(predictedClass), alphaVector));
-					
-					/*if(predictedClass==0){
-						for(int i=0;i<10;i++){
-							System.out.println(this.weightVectorClass.get(i)[302]);
-						}
-					}*/
 
 				}
 			}
-			if (displayAccuracy==1)
-				System.out.println(k+","+getGeneralAccuracy(test(trainList, bias))*100+","+getGeneralAccuracy(test(testList, bias))*100);
+			
+			testAccuracy = getGeneralAccuracy(test(testList, bias))*100 ;
+			
+			if (displayAccuracy==1){
+				System.out.println(k+","+getGeneralAccuracy(test(trainList, bias))*100+","+testAccuracy);
+			}
+			if (getGeneralAccuracy(test(trainList, bias))*100>=100){
+				break;
+			}
+			if( testAccuracy > maxTestAccuracy){
+				maxTestAccuracy = testAccuracy ;
+				maxK=k;
+			}
+			
 		}
+		float[] res = new float[2];
+		res[0]=maxTestAccuracy;
+		res[1]=maxK;
+		return res;
 
 	}
 	
@@ -133,6 +145,7 @@ public class Perceptron {
 	// if random = 0, we initialize every value to zero.
 	// if random > 0, we initialize every value with a number between 0 and the value of the variable random
 	private void initializeWeightVectors(int bias, int randomValue) {
+		weightVectorClass.clear();
 		if(bias==0)
 			for(int i=0;i<nbOfClass;i++){
 				weightVectorClass.add(new float[imageSize*imageSize]);
